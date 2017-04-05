@@ -15,11 +15,9 @@ class Monster:
         self.pos_y = pos_y
 
 class cell:
-    def __init__(self, Class = 0, A_monster = Monster(), hasMonster = False, Monster_num = 20):
+    def __init__(self, Class = 0, A_monster = Monster()):
         self.Class = Class
         self.A_monster = A_monster
-        self.hasMonster = hasMonster
-        self.Monster_num = Monster_num
 
 class Game_status:
     def __init__(self, maze = [], Monsters = [], Hero = Hero()):
@@ -85,7 +83,6 @@ class Game_status:
             dis += block_distance(self.Hero, m)
         return dis
 class Search_tree:
-
     def __init__(self, child = [], status = Game_status(), turns = 0, remained_distance = 500):
         self.child = child
         self.status = status
@@ -113,37 +110,79 @@ def search(search_tree):
     temp_status_d = Game_status(search_tree.status.maze, search_tree.status.Monsters, search_tree.status.Hero)
 
     if temp_status_l.Move_left():
-        passed_turns = int(temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].A_monster.HP/temp_status_l.Hero.AP) + 1
+        passed_turns = int(temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].A_monster.HP/temp_status_l.Hero.AP)
+        if passed_turns < temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].A_monster.HP/temp_status_l.Hero.AP:
+            passed_turns += 1
         if temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].Class != 0:
             if passed_turns - temp_status_l.Hero.BUFF > 0:
                 temp_status_l.Hero.HP -= (passed_turns - temp_status_l.Hero.BUFF) * temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].A_monster.AP
+                temp_status_l.Hero.BUFF = 0
+            else:
+                temp_status_l.Hero.BUFF -= passed_turns
             if temp_status_l.Hero.HP <= 0 or temp_status_l.distance_remain() > search_tree.remained_distance:
                 return
-        search_tree.child.append(Search_tree(status = temp_status_l, turns = search_tree.turns + passed_turns + 1, remained_distance = temp_status_l.distance_remain()))
+            if temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].A_monster.hasBuff:
+                temp_status_l.Hero.BUFF = 5
+            temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].Class -= 1
+            temp_status_l.Monsters.remove(temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].A_monster)
+            temp_status_l.maze[temp_status_l.Hero.pos_x][temp_status_l.Hero.pos_y].A_monster = Monster()
+        
+        search_tree.child.append(Search_tree(status = temp_status_l, turns = search_tree.turns + passed_turns, remained_distance = temp_status_l.distance_remain()))
+
     if temp_status_r.Move_right():
-        passed_turns = int(temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].A_monster.HP/temp_status_r.Hero.AP) + 1
+        passed_turns = int(temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].A_monster.HP/temp_status_r.Hero.AP)
+        if passed_turns < temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].A_monster.HP/temp_status_r.Hero.AP:
+            passed_turns += 1
         if temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].Class != 0:
             if passed_turns - temp_status_r.Hero.BUFF > 0:
                 temp_status_r.Hero.HP -= (passed_turns - temp_status_r.Hero.BUFF) * temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].A_monster.AP
+                temp_status_r.Hero.BUFF = 0
+            else:
+                temp_status_r.Hero.BUFF -= passed_turns
             if temp_status_r.Hero.HP <= 0 or temp_status_r.distance_remain() > search_tree.remained_distance:
                 return
-        search_tree.child.append(Search_tree(status = temp_status_r, turns = search_tree.turns + passed_turns + 1, remained_distance = temp_status_r.distance_remain()))
+            temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].Class -= 1
+            temp_status_r.Monsters.remove(temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].A_monster)
+            temp_status_r.maze[temp_status_r.Hero.pos_x][temp_status_r.Hero.pos_y].A_monster = Monster()
+        
+        search_tree.child.append(Search_tree(status = temp_status_r, turns = search_tree.turns + passed_turns, remained_distance = temp_status_r.distance_remain()))
+
     if temp_status_u.Move_up():
-        passed_turns = int(temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].A_monster.HP/temp_status_u.Hero.AP) + 1
+        passed_turns = int(temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].A_monster.HP/temp_status_u.Hero.AP)
+        if passed_turns < temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].A_monster.HP/temp_status_u.Hero.AP:
+            passed_turns += 1
         if temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].Class != 0:
             if passed_turns - temp_status_u.Hero.BUFF > 0:
                 temp_status_u.Hero.HP -= (passed_turns - temp_status_u.Hero.BUFF) * temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].A_monster.AP
+                temp_status_u.Hero.BUFF = 0
+            else:
+                temp_status_u.Hero.BUFF -= passed_turns
             if temp_status_u.Hero.HP <= 0 or temp_status_u.distance_remain() > search_tree.remained_distance:
                 return
-        search_tree.child.append(Search_tree(status = temp_status_u, turns = search_tree.turns + passed_turns + 1, remained_distance = temp_status_u.distance_remain()))
-    if temp_status_d.Move_left():
-        passed_turns = int(temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].A_monster.HP/temp_status_d.Hero.AP) + 1
+            temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].Class -= 1
+            temp_status_u.Monsters.remove(temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].A_monster)
+            temp_status_u.maze[temp_status_u.Hero.pos_x][temp_status_u.Hero.pos_y].A_monster = Monster()
+        
+        search_tree.child.append(Search_tree(status = temp_status_u, turns = search_tree.turns + passed_turns, remained_distance = temp_status_u.distance_remain()))
+
+    if temp_status_d.Move_down():
+        passed_turns = int(temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].A_monster.HP/temp_status_d.Hero.AP)
+        if passed_turns < temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].A_monster.HP/temp_status_d.Hero.AP:
+            passed_turns += 1
         if temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].Class != 0:
             if passed_turns - temp_status_d.Hero.BUFF > 0:
                 temp_status_d.Hero.HP -= (passed_turns - temp_status_d.Hero.BUFF) * temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].A_monster.AP
+                temp_status_d.Hero.BUFF = 0
+            else:
+                temp_status_d.Hero.BUFF -= passed_turns
             if temp_status_d.Hero.HP <= 0 or temp_status_d.distance_remain() > search_tree.remained_distance:
                 return
-        search_tree.child.append(Search_tree(status = temp_status_d, turns = search_tree.turns + passed_turns + 1, remained_distance = temp_status_d.distance_remain()))
+            temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].Class -= 1
+            temp_status_d.Monsters.remove(temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].A_monster)
+            temp_status_d.maze[temp_status_d.Hero.pos_x][temp_status_d.Hero.pos_y].A_monster = Monster()
+        
+        search_tree.child.append(Search_tree(status = temp_status_d, turns = search_tree.turns + passed_turns, remained_distance = temp_status_d.distance_remain()))
+
     for c in search_tree.child:
         search(c)
 
@@ -159,10 +198,10 @@ for i in range(N):
     for j in range(M):
         if input_line[j] == "S":
             Monster_list.append(Monster(hasBuff = True, pos_x = i, pos_y = j))
-            line.append(cell(2, Monster_list[-1], True, len(Monster_list) - 1))
+            line.append(cell(2, Monster_list[-1]))
         elif input_line[j] == "M":
             Monster_list.append(Monster(hasBuff = False, pos_x = i, pos_y = j))
-            line.append(cell(2, Monster_list[-1], True, len(Monster_list) - 1))
+            line.append(cell(2, Monster_list[-1]))
         elif input_line[j] == "D":
             line.append(cell())
             Little_HI = Hero(BUFF = 5, pos_x = i, pos_y = j)
